@@ -9,12 +9,10 @@ export function renderHome(container) {
                 <button id="quiz">INIZIA ALLENAMENTO</button>
                 <button id="stats" class="green">VISUALIZZA STATISTICHE</button>
             </div>
-
-            <button id="settings" class="settings">⚙️ IMPOSTAZIONI</button>
         </div>
     `;
 
     document.getElementById("quiz").onclick = () => navigate("quiz");
     document.getElementById("stats").onclick = () => navigate("stats");
-    document.getElementById("settings").onclick = () => navigate("settings");
+    // document.getElementById("settings").onclick = () => navigate("settings");
 }
