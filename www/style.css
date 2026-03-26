@@ -1,45 +1,336 @@
+:root {
+    --bg-color: #1a1a1a;
+    --frame-bg: #2b2b2b;
+    --text-color: #ffffff;
+    --text-secondary: #aaaaaa;
+    --accent-blue: #3b8ed0;
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
+    --accent-dark: #34495e;
+}
+
 body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
-    font-family: Arial;
-    background: #121212;
-    color: white;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding-top: 40px;
 }
 
-.home {
+#app { 
+    width: 100%; 
+    max-width: 950px; /* Limite per desktop */
+    padding: 10px; 
+    box-sizing: border-box;
+}
+
+.hidden { display: none !important; }
+
+.fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+h1 { font-size: 42px; text-align: center; margin-bottom: 40px; }
+
+/* Pulsanti */
+.btn {
+    cursor: pointer; border: none; border-radius: 8px;
+    font-weight: bold; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary { background: var(--accent-blue); color: white; width: 300px; height: 60px; font-size: 18px; margin: auto; }
+.btn-day { background: var(--accent-blue); color: white; width: 110px; height: 55px; margin: 5px; }
+.btn-sunday { background: var(--accent-dark); color: white; width: 235px; height: 55px; margin-top: 10px; }
+.btn-next { background: var(--accent-green); color: white; width: 350px; height: 50px; margin: 30px auto; }
+.btn-back { background: transparent; color: var(--text-secondary); border: 1px solid var(--text-secondary); padding: 5px 15px; }
+
+/* Quiz Layout */
+.lbl-timer { font-family: 'Consolas', monospace; font-size: 24px; color: var(--text-secondary); text-align: center; }
+.lbl-question { font-size: 48px; font-weight: bold; color: var(--accent-blue); text-align: center; margin: 20px 0; }
+
+.columns { 
+    display: grid; 
+    grid-template-columns: 280px 1fr 280px; 
+    gap: 15px; 
+}
+.col { background: var(--frame-bg); border-radius: 12px; padding: 15px; min-height: 300px; }
+.col-title { color: var(--text-secondary); font-size: 11px; font-weight: bold; text-align: center; margin-bottom: 15px; text-transform: uppercase; }
+.steps-content { font-family: 'Consolas', monospace; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+
+.input-section { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.grid-btns { display: grid; grid-template-columns: 1fr 1fr; }
+
+.final-result { text-align: center; font-size: 22px; font-weight: bold; margin-top: 25px; }
+
+.settings-bar {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.seg-control {
+    display: flex;
+    background: var(--frame-bg);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.seg-control button {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.seg-control button.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.btn-primary-big {
+    background: var(--accent-blue);
+    color: white;
+    width: 350px;
+    height: 70px;
+    font-size: 20px;
+    margin: 20px auto;
+}
+
+.prep-area {
     text-align: center;
+    margin-top: 50px;
 }
 
-h1 {
-    font-size: 42px;
-    margin-bottom: 40px;
+/* --- MOBILE LAYOUT (Sotto i 768px) --- */
+@media (max-width: 768px) {
+    body { padding-top: 10px; }
+
+    h1 { font-size: 28px; margin-bottom: 20px; }
+
+    .settings-bar {
+        flex-direction: column; /* Impostazioni una sopra l'altra */
+        align-items: center;
+        gap: 10px;
+    }
+
+    .columns { 
+        grid-template-columns: 1fr; /* Una sola colonna */
+        gap: 10px;
+    }
+
+    .input-section {
+        order: -1; /* Porta i pulsanti di risposta in alto dopo la domanda */
+        margin-bottom: 20px;
+    }
+
+    .grid-btns {
+        grid-template-columns: repeat(3, 1fr); /* 3 pulsanti per riga su mobile per risparmiare spazio */
+    }
+
+    .btn-day {
+        width: 80px; /* Più piccoli per stare su 3 colonne */
+        height: 60px;
+        margin: 4px;
+    }
+
+    .btn-sunday {
+        width: 260px;
+        height: 60px;
+    }
+
+    .col {
+        min-height: auto; /* Le colonne di testo si adattano al contenuto */
+        padding: 10px;
+    }
+
+    .lbl-question {
+        font-size: 32px;
+    }
+
+    .btn-primary-big, .btn-next {
+        width: 100%; /* Bottoni a tutta larghezza */
+        max-width: 320px;
+    }
 }
 
-.buttons {
+.stats-main {
+    display: flex;
+    gap: 20px;
+    height: 500px;
+    margin-top: 20px;
+}
+
+.stats-sidebar {
+    width: 250px;
+    background: var(--frame-bg);
+    border-radius: 12px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     gap: 15px;
 }
 
-button {
-    width: 300px;
-    height: 60px;
-    font-size: 16px;
+.stats-text-box {
+    background: #1e1e1e;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    flex-grow: 1;
+    border: 1px solid #444;
+}
+
+.stats-content {
+    flex-grow: 1;
+    background: #1e1e1e;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.tab-header {
+    display: flex;
+    gap: 5px;
+    border-bottom: 1px solid #444;
+    margin-bottom: 10px;
+}
+
+.tab-btn {
+    background: transparent;
     border: none;
-    border-radius: 10px;
+    color: var(--text-secondary);
+    padding: 8px 15px;
     cursor: pointer;
 }
 
-.green {
-    background: #2ecc71;
+.tab-btn.active {
+    color: white;
+    border-bottom: 2px solid var(--accent-blue);
 }
 
-.settings {
+.chart-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+/* Mobile Stats */
+@media (max-width: 768px) {
+    .stats-main { flex-direction: column; height: auto; }
+    .stats-sidebar { width: 100%; order: 2; }
+    .stats-content { height: 300px; order: 1; }
+}
+
+.stats-grid {
+    font-family: 'Consolas', monospace;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.stats-grid b {
+    color: var(--accent-green);
+    float: right;
+}
+
+select {
+    background: var(--bg-color);
+    color: white;
+    border: 1px solid #444;
+    padding: 8px;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: bold;
+}
+
+.btn-success {
+    background-color: var(--accent-green);
+    color: white;
+    font-size: 18px;
+    margin: 10px auto;
+}
+
+.btn-success:hover {
+    background-color: #27ae60; /* Un verde un po' più scuro al passaggio */
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* Layout base delle statistiche */
+.stats-main {
+    display: flex;
+    flex-direction: row; /* Desktop: Orizzontale */
+    gap: 15px;
     margin-top: 20px;
-    background: #34495e;
+    align-items: stretch;
+}
+
+.stats-sidebar {
+    width: 260px; /* Larghezza fissa su desktop */
+    flex-shrink: 0;
+    background: var(--frame-bg);
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stats-content {
+    flex-grow: 1;
+    min-width: 0; /* Importante per non far "esplodere" il grafico */
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+/* --- FIX MOBILE (Sotto i 768px) --- */
+@media (max-width: 768px) {
+    .stats-main {
+        flex-direction: column; /* Impila tutto verticalmente */
+    }
+
+    .stats-sidebar {
+        width: 100%; /* Occupa tutta la larghezza */
+        box-sizing: border-box;
+        order: 2; /* Sposta i filtri SOTTO il grafico su mobile */
+    }
+
+    .stats-content {
+        width: 100%;
+        height: 350px; /* Altezza fissa per il grafico su mobile */
+        box-sizing: border-box;
+        order: 1; /* Grafico in alto */
+    }
+
+    .sidebar-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    select {
+        width: 60% !important; /* Ridimensiona il menu a tendina su mobile */
+        margin-top: 0;
+    }
 }

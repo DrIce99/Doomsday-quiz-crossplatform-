@@ -1,14 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Doomsday Trainer JS</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div id="app"></div>
-    <script type="module" src="./main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div id="app">
+        <!-- Home Screen -->
+        <div id="home-screen" class="game-container fade-in">
+            <h1>🧠 Doomsday Trainer</h1>
+
+            <div class="settings-bar">
+                <div class="seg-control">
+                    <button id="mode-gp" class="active" onclick="game.setMode('Giorno Preciso')">Giorno Preciso</button>
+                    <button id="mode-sd" onclick="game.setMode('Solo Doomsday')">Solo Doomsday</button>
+                </div>
+
+                <div class="seg-control">
+                    <button id="diff-fa" class="active" onclick="game.setDiff('facile')">Facile</button>
+                    <button id="diff-me" onclick="game.setDiff('medio')">Medio</button>
+                    <button id="diff-di" onclick="game.setDiff('difficile')">Difficile</button>
+                </div>
+            </div>
+
+            <div class="prep-area">
+                <div id="prep-question" class="lbl-question">PRONTO?</div>
+                <button id="btn-start-game" class="btn btn-primary-big" onclick="game.start()">CLICCA PER
+                    INIZIARE</button>
+                <button class="btn btn-success btn-primary-big" onclick="stats.init()">VISUALIZZA STATISTICHE</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="game-container hidden">
+            <nav><button class="btn btn-back" onclick="location.reload()">⬅ HOME</button></nav>
+            <div id="timer" class="lbl-timer">0.0s</div>
+            <div id="question" class="lbl-question">---</div>
+
+            <div class="columns">
+                <div class="col">
+                    <div class="col-title">CALCOLO DOOMSDAY</div>
+                    <div id="steps-doomsday" class="steps-content"></div>
+                </div>
+
+                <div class="input-section">
+                    <div class="grid-btns">
+                        <button class="btn btn-day" onclick="game.check(1)">Lun</button>
+                        <button class="btn btn-day" onclick="game.check(2)">Mar</button>
+                        <button class="btn btn-day" onclick="game.check(3)">Mer</button>
+                        <button class="btn btn-day" onclick="game.check(4)">Gio</button>
+                        <button class="btn btn-day" onclick="game.check(5)">Ven</button>
+                        <button class="btn btn-day" onclick="game.check(6)">Sab</button>
+                    </div>
+                    <button class="btn btn-sunday" onclick="game.check(0)">Domenica (0)</button>
+                </div>
+
+                <div class="col">
+                    <div class="col-title">CALCOLO GIORNO</div>
+                    <div id="steps-day" class="steps-content"></div>
+                </div>
+            </div>
+
+            <div id="result" class="final-result"></div>
+            <button id="btn-next" class="btn btn-next hidden" onclick="game.nextQuestion()">PROSSIMA PARTITA ➔</button>
+        </div>
+
+        <!-- Stats Screen -->
+        <div id="stats-screen" class="game-container hidden fade-in">
+            <nav><button class="btn btn-back" onclick="location.reload()">⬅ HOME</button></nav>
+
+            <div class="settings-bar stats-header">
+                <div class="seg-control" id="stats-mode-seg">
+                    <button class="active" onclick="stats.updateFilter('mode', 'Giorno Preciso', this)">Giorno
+                        Preciso</button>
+                    <button onclick="stats.updateFilter('mode', 'Solo Doomsday', this)">Solo Doomsday</button>
+                </div>
+                <div class="seg-control" id="stats-diff-seg">
+                    <button class="active" onclick="stats.updateFilter('diff', 'facile', this)">Facile</button>
+                    <button onclick="stats.updateFilter('diff', 'medio', this)">Medio</button>
+                    <button onclick="stats.updateFilter('diff', 'difficile', this)">Difficile</button>
+                </div>
+            </div>
+
+            <div class="stats-main">
+                <!-- Sidebar -->
+                <aside class="stats-sidebar">
+                    <div class="sidebar-item">
+                        <label>Vista Temporale:</label>
+                        <select id="view-opt" onchange="stats.refresh()">
+                            <option value="Sempre">Sempre</option>
+                            <option value="Giorno">Giorno</option>
+                            <option value="Settimana">Settimana</option>
+                            <option value="Mese">Mese</option>
+                        </select>
+                    </div>
+
+                    <div class="stats-text-box" id="stats-summary">
+                        <!-- Qui appariranno i dati testuali -->
+                    </div>
+                </aside>
+
+                <!-- Area Grafici (Tabs) -->
+                <main class="stats-content">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="stats.switchTab('temp', this)">Andamento</button>
+                        <button class="tab-btn" onclick="stats.switchTab('perf', this)">Performance</button>
+                        <button class="tab-btn" onclick="stats.switchTab('dist', this)">Dist. ment.</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="script.js"></script>
+    <script src="stats.js"></script>
 </body>
+
 </html>
