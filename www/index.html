@@ -31,7 +31,9 @@
                 <div id="prep-question" class="lbl-question">PRONTO?</div>
                 <button id="btn-start-game" class="btn btn-primary-big" onclick="game.start()">CLICCA PER
                     INIZIARE</button>
+                <button class="btn btn-warning btn-primary-big" onclick="game.startTutorial()">IMPARA IL METODO</button>
                 <button class="btn btn-success btn-primary-big" onclick="stats.init()">VISUALIZZA STATISTICHE</button>
+
             </div>
         </div>
 
@@ -64,6 +66,9 @@
                     <div id="steps-day" class="steps-content"></div>
                 </div>
             </div>
+
+            <div id="steps-doomsday"></div>
+            <div id="steps-day"></div>
 
             <div id="result" class="final-result"></div>
             <button id="btn-next" class="btn btn-next hidden" onclick="game.nextQuestion()">PROSSIMA PARTITA ➔</button>

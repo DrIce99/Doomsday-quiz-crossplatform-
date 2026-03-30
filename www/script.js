@@ -1,6 +1,12 @@
 const DAYS = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
 const isLeap = (y) => (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0));
 
+const tutorialSteps = [
+    { title: "SECOLO", key: "secolo" },
+    { title: "ANNO", key: "anno" },
+    { title: "GIORNO PRECISO", key: "giorno" }
+];
+
 const game = {
     running: false,
     gameStarted: false,
@@ -8,6 +14,8 @@ const game = {
     difficulty: 'facile',
     startTime: 0,
     currentDate: null,
+    isTutorial: false,
+    tutorialStep: 0,
 
     setMode(val) {
         this.mode = val;
@@ -124,6 +132,10 @@ const game = {
     },
 
     saveData(m, d, t, c, td) {
+        if (this.isTutorial) {
+            console.log("Tutorial: salvataggio ignorato.");
+            return; 
+        }
         // 1. Recupera i dati esistenti dal localStorage (se vuoto, crea array [])
         let stats = JSON.parse(localStorage.getItem("doomsday_stats_v2") || "[]");
 
@@ -158,8 +170,111 @@ const game = {
         localStorage.setItem("doomsday_stats_v2", JSON.stringify(stats));
 
         console.log("✅ Partita salvata nel localStorage:", newRecord);
-    }
+    },
 
+    startTutorial() {
+        this.isTutorial = true;
+        this.tutorialStep = 0;
+        this.generateTutorialData();
+        this.showTutorialStep();
+        this.gameStarted = true;
+        document.getElementById('home-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        
+        // Rendi i pulsanti cliccabili per verificare se l'utente ha capito
+        this.running = true;
+        // this.startTime = performance.now();
+        // this.updateClock();
+    },
+
+    generateTutorialData() {
+// 1. Genera una data casuale (difficoltà facile per imparare meglio)
+        const y = Math.floor(Math.random() * (2099 - 2000 + 1)) + 2000;
+        const m = Math.floor(Math.random() * 12) + 1;
+        const daysInMonth = new Date(y, m, 0).getDate();
+        const d = Math.floor(Math.random() * daysInMonth) + 1;
+        this.currentDate = { d, m, y };
+
+        // 2. Calcola la logica Doomsday (riutilizziamo la tua funzione esistente)
+        const { val: ddVal, steps: ddSteps } = this.calculateDoomsdayLogic(y);
+        
+        // 3. Calcola la logica del Giorno
+        const anchors = [0, isLeap(y)?4:3, isLeap(y)?29:28, 14, 4, 9, 6, 11, 8, 5, 10, 7, 12];
+        const mAnchor = anchors[m];
+        const dist = d - mAnchor;
+        const distMod = ((dist % 7) + 7) % 7;
+        const realDay = new Date(y, m - 1, d).getDay();
+
+        // 4. Update UI
+        document.getElementById('question').innerText = `ESERCIZIO: ${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+        document.getElementById('question').style.color = "#f1c40f";
+
+        // Mostra i passaggi DOOMSDAY (Sinistra)
+        document.getElementById('steps-doomsday').innerText = "--- LOGICA ANNO ---\n" + ddSteps.join('\n');
+
+        // Mostra i passaggi GIORNO (Destra)
+        const daySteps = [
+            // "--- LOGICA GIORNO ---",
+            // `Mese: ${m} -> Ancora: ${mAnchor}`,
+            // `Giorno Target: ${d}`,
+            // `Distanza: ${d} - ${mAnchor} = ${dist}`,
+            // `Distanza mod 7: ${distMod}`,
+            // `Calcolo: ${DAYS[ddVal]} (${ddVal}) + ${distMod}`,
+            // `RISULTATO: ${DAYS[realDay]}`
+        ];
+        document.getElementById('steps-day').innerText = daySteps.join('\n');
+        document.getElementById('btn-next').onclick = () => this.generateTutorialData();
+    },
+
+    showTutorialStep() {
+        const { d, m, y } = this.currentDate;
+        const century = Math.floor(y / 100);
+        const cIdx = century % 4;
+        const cAnchorLookup = { 0: 2, 1: 0, 2: 5, 3: 3 };
+        const cAnchorVal = cAnchorLookup[cIdx];
+        const { val: ddVal, steps: ddSteps } = this.calculateDoomsdayLogic(y);
+        const realDayIdx = new Date(y, m - 1, d).getDay();
+        
+        let msg = "";
+        let targetId = "";
+
+        switch(this.tutorialStep) {
+            case 0: // Secolo
+                const century = Math.floor(y / 100);
+                msg = `1) SECOLO: Per prima cosa, calcoliamo l'ancora del secolo.\nL'anno è ${y}, quindi siamo nel secolo ${century}00.\nIn questo caso, l'ancora è ${DAYS[cAnchorVal]}.`;
+                targetId = "steps-doomsday";
+                break;
+            case 1: // Anno
+                msg = `2) ANNO: Ora calcoliamo il Doomsday dell'anno.\nSeguiamo la regola Odd+11:\n${ddSteps.join('\n')}\nIl Doomsday dell'anno è ${DAYS[ddVal]}.`;
+                targetId = "steps-doomsday";
+                break;
+            case 2: // Giorno
+                msg = `3) GIORNO: Infine, calcoliamo il giorno preciso.\nIl mese ${m} ha come ancora il giorno ${this.getAnchor(m, y)}.\nDistanza: ${d} - ancora = spostamento.\nRisultato finale: ${DAYS[realDayIdx]}!`;
+                targetId = "steps-day";
+                break;
+        }
+
+        document.getElementById(targetId).innerHTML = `<div class="fade-in">${msg}</div>`;
+        
+        const btn = document.getElementById('btn-next');
+        if (btn) {
+            btn.classList.remove('hidden');
+            btn.innerText = this.tutorialStep < 2 ? "AVANTI ➔" : "ESCI";
+            btn.onclick = () => {
+                if (this.tutorialStep < 2) {
+                    this.tutorialStep++;
+                    this.showTutorialStep();
+                } else {
+                    location.reload(); // Torna alla home resettando tutto
+                }
+            };
+        }
+    },
+
+    getAnchor(m, y) {
+        const anchors = [0, isLeap(y) ? 4 : 3, isLeap(y) ? 29 : 28, 14, 4, 9, 6, 11, 8, 5, 10, 7, 12];
+        return anchors[m];
+    }
 
 };
 
