@@ -80,15 +80,22 @@ const game = {
         const anchorCentury = [2, 0, 5, 3][century % 4]; // Formula ciclica corretta per secoli
 
         let t = y % 100;
+        let old_t = y % 100;
         let steps = [`Secolo: ${century}00 -> Ancora: ${DAYS[anchorCentury]}`];
 
-        if (t % 2 !== 0) { t += 11; steps.push(`Dispari: +11 = ${t}`); }
-        t = t / 2; steps.push(`Diviso 2: ${t}`);
-        if (t % 2 !== 0) { t += 11; steps.push(`Dispari: +11 = ${t}`); }
-
+        if (t % 2 !== 0) { t += 11; steps.push(`${old_t} è dispari: +11 = ${t}`); }
+        old_t = t;
+        t = t / 2; steps.push(`${old_t} è pari, quindi diviso 2: ${t}`);
+        old_t = t;
+        if (t % 2 !== 0) { t += 11; steps.push(`${old_t} è ancora dispari: +11 = ${t}`); }
+        
+        old_t = t;
+        t = t % 7;
         let diff = (7 - (t % 7)) % 7;
-        steps.push(`Mod 7 e diff: ${diff}`);
+        steps.push(`${old_t} Mod 7: ${t}`);
+        steps.push(`Infine differenza (7-${t}) = ${diff}`);
         const finalDD = (anchorCentury + diff) % 7;
+        steps.push(`E somma con l'ancora: (${diff} + ${DAYS[anchorCentury]}) = ${DAYS[finalDD]}`);
         steps.push(`Doomsday Anno: ${DAYS[finalDD]}`);
 
         return { val: finalDD, steps };
